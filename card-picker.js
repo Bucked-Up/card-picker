@@ -112,6 +112,7 @@
     .cp-timer { width: 100%; max-width: 400px; margin: 8px auto 6px; }
     .cp-timer-track { height: 10px; border-radius: 5px; background: #e5e7eb; overflow: hidden; }
     .cp-timer-fill { height: 100%; width: 100%; border-radius: 5px; }
+    .cp-confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
     @keyframes cp-swivel {
       0% { transform: rotateY(0deg); }
       25% { transform: rotateY(-37deg); }
@@ -155,6 +156,19 @@
     }
     return confettiPromise;
   };
+
+  // Own main-thread canvas: the library's default instance renders in a worker via
+  // OffscreenCanvas, which silently fails on some mobile browsers (notably iOS Safari).
+  let confettiFire = null;
+  const getConfettiFire = () => loadConfetti().then((lib) => {
+    if (!confettiFire) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'cp-confetti';
+      document.body.appendChild(canvas);
+      confettiFire = lib.create(canvas, { resize: true, useWorker: false });
+    }
+    return confettiFire;
+  });
 
   // Fake countdown: drains fast to 60%, then crawls through a long tail while it
   // shifts green -> yellow -> red and shakes harder. Timeline mirrors the original
@@ -337,13 +351,13 @@
         x: (rect.left + rect.width / 2) / window.innerWidth,
         y: (rect.top + rect.height / 2) / window.innerHeight,
       };
-      loadConfetti()
+      getConfettiFire()
         .then((fire) => {
-          fire({ particleCount: 150, spread: 100, startVelocity: 45, origin, zIndex: 9999 });
-          setTimeout(() => fire({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, zIndex: 9999 }), 250);
-          setTimeout(() => fire({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, zIndex: 9999 }), 400);
+          fire({ particleCount: 150, spread: 100, startVelocity: 45, origin });
+          setTimeout(() => fire({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.7 } }), 250);
+          setTimeout(() => fire({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.7 } }), 400);
         })
-        .catch(() => {});
+        .catch((err) => console.warn(err));
     };
 
     const finish = () => {
