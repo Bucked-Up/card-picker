@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Picker Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; padding: 24px 16px; font-family: Montserrat, sans-serif; background: #fff; text-align: center; }
+    h1 { font-family: Poppins, sans-serif; font-size: 46px; margin: 0; text-transform: uppercase; }
+    p { margin: 4px 0 16px; font-size: 14px; }
+    #status { margin-top: 16px; font-size: 14px; }
+    button.reset { margin-top: 12px; padding: 10px 24px; border: 0; border-radius: 999px; background: #0a8fdc; color: #fff; font: 700 14px Montserrat, sans-serif; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Pick a card</h1>
+  <p>( tap a card )</p>
+
+  <div id="picker"></div>
+
+  <div id="status">You won 0 / 4 gifts</div>
+  <button class="reset" type="button">Reset</button>
+
+  <script src="card-picker.js"></script>
+  <script>
+    // Placeholder art so the demo works with no asset files — swap for real URLs.
+    const svg = (body, bg = 'none') =>
+      'data:image/svg+xml;utf8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bg}"/>${body}</svg>`
+      );
+    const emoji = (e) => svg(`<text x="50" y="62" font-size="56" text-anchor="middle" dominant-baseline="middle">${e}</text>`);
+
+    const prizes = [
+      { src: emoji('📦'), label: 'Free Shipping' },
+      { src: emoji('🍬'), label: 'Neuro Energy & Focus™ Gum' },
+      { src: emoji('🎁'), label: 'Mystery Gift' },
+      { src: emoji('🧴'), label: 'Exfoliating Wash' },
+    ];
+    const status = document.getElementById('status');
+
+    const picker = createCardPicker({
+      wrapper: '#picker',
+      logo: emoji('🃏'),
+      images: prizes,
+      onFlip: (prize, index, revealed) => {
+        status.textContent = `You won ${revealed} / ${prizes.length} gifts`;
+        console.log('[card-picker] flip', index, prize.label);
+      },
+      onComplete: (all) => {
+        status.textContent = `Congratulations! You won ${all.length} / ${all.length} gifts`;
+        console.log('[card-picker] complete', all.map((p) => p.label));
+      },
+    });
+
+    document.querySelector('.reset').addEventListener('click', () => {
+      picker.reset();
+      status.textContent = `You won 0 / ${prizes.length} gifts`;
+    });
+  </script>
+</body>
+</html>
