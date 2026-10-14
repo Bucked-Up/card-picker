@@ -33,10 +33,10 @@
     const emoji = (e) => svg(`<text x="50" y="62" font-size="56" text-anchor="middle" dominant-baseline="middle">${e}</text>`);
 
     const prizes = [
-      { src: emoji('📦'), label: 'Free Shipping' },
-      { src: emoji('🍬'), label: 'Neuro Energy & Focus™ Gum' },
+      { src: emoji('📦'), label: 'Free Shipping', tag: 'Free' },
+      { src: emoji('🍬'), label: 'Neuro Energy & Focus™ Gum', tag: '50% Off' },
       { src: emoji('🎁'), label: 'Mystery Gift' },
-      { src: emoji('🧴'), label: 'Exfoliating Wash' },
+      { src: emoji('🧴'), label: 'Exfoliating Wash', tag: 'Free' },
     ];
     const status = document.getElementById('status');
 

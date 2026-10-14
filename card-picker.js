@@ -4,7 +4,8 @@
  * createCardPicker({
  *   wrapper: '#picker',              // selector or Element (grid parent)
  *   logo: 'logo.png',                // image on the unflipped cards
- *   images: [{ src, label }],        // prizes, revealed in order, one per click
+ *   images: [{ src, label, tag }],   // prizes, revealed in order, one per click;
+ *                                    // optional `tag` = corner badge text (e.g. 'FREE')
  *   // optional
  *   cards: 9,                        // total cards (min: images.length)
  *   columns: 3,
@@ -65,14 +66,14 @@
       box-shadow: 0 3px 6px #aaa;
       overflow: hidden;
     }
-    .cp-front { background: #e7f1ff; border: 5px solid #b5d8f8; }
+    .cp-front { background: var(--cp-front-bg, #eaf6ff); border: 4px solid var(--cp-front-border, #0a3cff); }
     .cp-front img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
     .cp-back {
       flex-direction: column;
       gap: 4px;
       text-align: center;
-      background: #90ee90;
-      border: 5px solid rgb(83, 227, 146);
+      background: var(--cp-back-bg, #0061ff);
+      border: 5px solid var(--cp-back-border, #ff0000);
       transform: rotateY(180deg);
     }
     .cp-back img { width: 100%; height: 55%; object-fit: contain; }
@@ -83,7 +84,22 @@
       line-height: 1.1;
       letter-spacing: -0.5px;
       text-transform: uppercase;
-      color: #000;
+      color: var(--cp-label-color, #fff);
+    }
+    .cp-tag {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 4px 8px;
+      background: var(--cp-tag-bg, #ff0000);
+      color: var(--cp-tag-color, #fff);
+      font-family: 'Poppins', 'Arial Narrow', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1;
+      text-transform: uppercase;
+      border-bottom-left-radius: 10px;
+      pointer-events: none;
     }
     .cp-grid.cp-complete .cp-card:not(.cp-flipped) { cursor: default; }
     .cp-grid.cp-complete .cp-card:not(.cp-flipped) .cp-front {
@@ -102,7 +118,10 @@
       100% { transform: rotateY(0deg); }
     }
     @media (max-width: 480px) { .cp-grid { gap: 6px; } }
-    @media (max-width: 352px) { .cp-label { font-size: 0.6rem; } }
+    @media (max-width: 352px) {
+      .cp-label { font-size: 0.6rem; }
+      .cp-tag { font-size: 0.55rem; padding: 3px 6px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       .cp-inner { transition: none; }
       .cp-card.cp-swivel .cp-inner { animation: none; }
@@ -293,7 +312,14 @@
         label.textContent = prize.label;
         back.appendChild(label);
       }
-      card.setAttribute('aria-label', prize.label ? `Revealed: ${prize.label}` : 'Revealed card');
+      if (prize.tag) {
+        const tag = document.createElement('div');
+        tag.className = 'cp-tag';
+        tag.textContent = prize.tag;
+        back.appendChild(tag);
+      }
+      const name = [prize.label, prize.tag && `(${prize.tag})`].filter(Boolean).join(' ');
+      card.setAttribute('aria-label', name ? `Revealed: ${name}` : 'Revealed card');
     };
 
     const celebrate = () => {
