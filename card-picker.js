@@ -6,6 +6,7 @@
  *   logo: 'logo.png',                // image on the unflipped cards
  *   images: [{ src, label, tag }],   // prizes, revealed in order, one per click;
  *                                    // optional `tag` = corner badge text (e.g. 'FREE')
+ *                                    // label/tag accept HTML (e.g. '<b>50%</b><br>Off')
  *   // optional
  *   cards: 9,                        // total cards (min: images.length)
  *   columns: 3,
@@ -79,7 +80,7 @@
     .cp-back img { width: 100%; height: 55%; object-fit: contain; }
     .cp-label {
       font-family: 'Poppins', 'Arial Narrow', sans-serif;
-      font-weight: 700;
+      font-weight: 400;
       font-size: 0.9rem;
       line-height: 1.1;
       letter-spacing: -0.5px;
@@ -299,26 +300,33 @@
       return card;
     };
 
+    // Label and tag accept HTML (<b>, <br>, ...); attributes get the plain text.
+    const toText = (html) => {
+      const el = document.createElement('div');
+      el.innerHTML = html || '';
+      return el.textContent.replace(/\s+/g, ' ').trim();
+    };
+
     const fillBack = (card, prize) => {
       const back = card.querySelector('.cp-back');
       back.innerHTML = '';
       const img = document.createElement('img');
       img.src = prize.src;
-      img.alt = prize.label || '';
+      img.alt = toText(prize.label);
       back.appendChild(img);
       if (prize.label) {
         const label = document.createElement('div');
         label.className = 'cp-label';
-        label.textContent = prize.label;
+        label.innerHTML = prize.label;
         back.appendChild(label);
       }
       if (prize.tag) {
         const tag = document.createElement('div');
         tag.className = 'cp-tag';
-        tag.textContent = prize.tag;
+        tag.innerHTML = prize.tag;
         back.appendChild(tag);
       }
-      const name = [prize.label, prize.tag && `(${prize.tag})`].filter(Boolean).join(' ');
+      const name = [toText(prize.label), prize.tag && `(${toText(prize.tag)})`].filter(Boolean).join(' ');
       card.setAttribute('aria-label', name ? `Revealed: ${name}` : 'Revealed card');
     };
 
@@ -331,9 +339,9 @@
       };
       loadConfetti()
         .then((fire) => {
-          fire({ particleCount: 150, spread: 100, startVelocity: 45, origin });
-          setTimeout(() => fire({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.7 } }), 250);
-          setTimeout(() => fire({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.7 } }), 400);
+          fire({ particleCount: 150, spread: 100, startVelocity: 45, origin, zIndex: 9999 });
+          setTimeout(() => fire({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.7 }, zIndex: 9999 }), 250);
+          setTimeout(() => fire({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.7 }, zIndex: 9999 }), 400);
         })
         .catch(() => {});
     };
